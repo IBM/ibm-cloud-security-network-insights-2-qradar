@@ -1,0 +1,11 @@
+<!--
+# Copyright 2021- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+-->
+<?xml version="1.0" encoding="UTF-8" ?>
+<WorkflowParameterValues xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/WorkflowParameterValues/V1">
+    <Value name="endpoint_url"      value="" />
+    <Value name="account_id"  value="" />
+    <Value name="api_key"  value="" />
+</WorkflowParameterValues>

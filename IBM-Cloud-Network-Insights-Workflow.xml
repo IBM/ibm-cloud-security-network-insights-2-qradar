@@ -1,0 +1,103 @@
+<!--
+# Copyright 2021- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+-->
+<?xml version="1.0" encoding="UTF-8" ?>
+<Workflow name="IBMCloudSecurityAdvisor" version="1.1" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V1">
+
+    <Parameters>
+        <Parameter name="endpoint_url" label="Host" required="true"/>
+        <Parameter name="account_id" label="IBM Cloud Account ID" required="true" secret="true" />
+        <Parameter name="api_key" label="Service or User API Key" required="true" secret="true" />
+    </Parameters>
+
+    <Actions>
+
+        <Initialize path="/bookmark" value="2020-01-01T00:00:00.000000Z" />
+        <!-- Get Bearer Token -->
+        <CallEndpoint url="https://iam.cloud.ibm.com/identity/token" method="POST" savePath="/get_bearertoken">
+            <SSLConfiguration allowUntrustedServerCertificate="false"/>            
+            <RequestHeader name="Accept" value="application/json"/>
+            <RequestHeader name="Content-Type" value="application/x-www-form-urlencoded"/>
+            <RequestHeader name="servicekey" value="${/servicekey}"/>
+            <UrlEncodedFormRequestBody> 
+                <Parameter name="grant_type" value="urn:ibm:params:oauth:grant-type:apikey" />
+                <Parameter name="apikey" value="${/api_key}" />
+            </UrlEncodedFormRequestBody>
+        </CallEndpoint>
+
+        <!-- Handle Errors -->
+        <If condition="/get_bearertoken/status_code != 200">
+            <Abort reason="${/get_bearertoken/body/code}: ${/get_bearertoken/body/error}"/>
+        </If>
+
+        <If condition="count(/get_bearertoken/body) > 0">
+
+            <!-- Response is a JSON objects with BearerToken -->
+            <Set path="/bearer_token" value="${/get_bearertoken/body/access_token}"/>
+        </If>
+        
+        <!-- Get Security Advisor Events-->
+        <CallEndpoint url="https://${/endpoint_url}/findings/v1/${/account_id}/graph" method="POST" savePath="/get_occurrences">
+            <BearerAuthentication token="${/bearer_token}"/>
+            <RequestHeader name="Content-Type" value="application/json"/>
+            <RequestBody type="application/json" encoding="UTF-8">
+                 {"query": "{occurrences(fromTime:\"${/bookmark}\",kind:\"FINDING\") {id}}"}
+            </RequestBody>
+
+        </CallEndpoint>
+
+        <!-- Handle Errors -->
+        <If condition="/get_occurrences/status_code != 200">
+            <Abort reason="${/get_occurrences/body/code}: ${/get_bearertoken/body/error}"/>
+        </If>
+
+        <If condition="count(/get_occurrences/body) > 0">
+            <!-- Get Details for each Event Returned-->
+            <ForEach item="/current_occurrence" items="/get_occurrences/body/data/occurrences">
+                <CallEndpoint url="https://${/endpoint_url}/findings/v1/${/account_id}/providers/security-advisor/occurrences/${/current_occurrence/id}" method="GET" savePath="/occurrence_details">
+                    <BearerAuthentication token="${/bearer_token}"/>
+                    <RequestHeader name="Content-Type" value="application/json"/>
+                </CallEndpoint>
+
+                <!-- Handle Errors -->
+                <If condition="/occurrence_details/status_code != 200">
+                    <Abort reason="${/occurrence_details/body/code}: ${/occurrence_details/body/error}"/>
+                </If>
+
+                <If condition="count(/occurrence_details/body) > 0">
+
+                    <!-- Post Event Data: JSON objects with details of the Occurrence ID -->
+                    <PostEvent path="/occurrence_details/body" source="${/endpoint_url}" />
+                    <Add path="/times" value="${/occurrence_details/body/create_time}"/>
+                </If>
+            </ForEach>
+            
+        </If>
+
+        <!-- Set Bookmark time maximum date-time in logs -->
+        <If condition="count(/times) > 0">
+            <Set path="/bookmark" value="${max(/times)}" />
+        </If>
+
+        <!-- Clear Uneeded Data from state file-->
+        <Delete path="/endpoint_url"/>
+        <Delete path="/account_id"/>
+        <Delete path="/api_key"/>
+        <Delete path="/get_bearertoken"/>
+        <Delete path="/bearer_token"/>
+        <Delete path="/get_occurrences"/>
+        <Delete path="/occurrence_details"/>
+        <Delete path="/times"/>
+
+    </Actions>
+
+    <Tests>
+        <DNSResolutionTest host="${/endpoint_url}"/>
+        <TCPConnectionTest host="${/endpoint_url}"/>
+        <SSLHandshakeTest host="${/endpoint_url}"/>
+        <HTTPConnectionThroughProxyTest url="https://${/endpoint_url}" expectedResponseStatus="404" />
+    </Tests>
+
+</Workflow>
