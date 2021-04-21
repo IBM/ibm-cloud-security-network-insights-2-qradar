@@ -29,6 +29,7 @@ The parameters needed to configure the Univeral Cloud Rest API require informati
 1. api_key: [Create an API key](https://cloud.ibm.com/docs/account?topic=account-manapikey) to generate the access token for the [Findings API](https://cloud.ibm.com/apidocs/security-advisor/findings)
 2. endpoint_url: The [Endpoint URL](https://cloud.ibm.com/apidocs/security-advisor/findings) for the desired location. Only use the FQDN and not the full URL. For example, use "us-south.secadvisor.cloud.ibm.com". Do NOT use the full URL "https://us-south.secadvisor.cloud.ibm.com/findings". 
 - You can find the right endpoint_url at [Findings Endpoints](https://cloud.ibm.com/apidocs/security-advisor/findings#endpoints) based upon your [Location](https://cloud.ibm.com/docs/security-compliance?topic=security-compliance-mng-data#storage-location-api) setting.
+- Incorrect location setting will result in a HTTP 406 Error.
 3. account_id: Go to the [Account settings](https://cloud.ibm.com/account/settings) page in the console to view your account ID and account type.
 
 
