@@ -1,9 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
 # Copyright 2021- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
-#
+
 -->
-<?xml version="1.0" encoding="UTF-8" ?>
 <Workflow name="IBMCloudSecurityAdvisor" version="1.1" xmlns="http://qradar.ibm.com/UniversalCloudRESTAPI/Workflow/V1">
 
     <Parameters>
@@ -14,7 +14,7 @@
 
     <Actions>
 
-        <Initialize path="/bookmark" value="2020-01-01T00:00:00.000000Z" />
+        <Initialize path="/bookmark" value="2021-01-01T00:00:00.000000Z" />
         <!-- Get Bearer Token -->
         <CallEndpoint url="https://iam.cloud.ibm.com/identity/token" method="POST" savePath="/get_bearertoken">
             <SSLConfiguration allowUntrustedServerCertificate="false"/>            
@@ -68,7 +68,7 @@
 
                 <If condition="count(/occurrence_details/body) > 0">
 
-                    <!-- Post Event Data: JSON objects with details of the Occurrence ID -->
+                    <!-- Response is a JSON objects with details of the Occurrence ID -->
                     <PostEvent path="/occurrence_details/body" source="${/endpoint_url}" />
                     <Add path="/times" value="${/occurrence_details/body/create_time}"/>
                 </If>
@@ -81,7 +81,7 @@
             <Set path="/bookmark" value="${max(/times)}" />
         </If>
 
-        <!-- Clear Uneeded Data from state file-->
+        <!-- Clear uneeded data from state file-->
         <Delete path="/endpoint_url"/>
         <Delete path="/account_id"/>
         <Delete path="/api_key"/>
