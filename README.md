@@ -3,7 +3,7 @@
 
 ## Scope
 
-The purpose of this project is to provide a mechanism for ingesting IBM Cloud Security Network Insights into QRadar using the Universal Cloud REST API protocol.
+The purpose of this project is to provide a mechanism for ingesting IBM Cloud Security and Command Center Network Insights into QRadar using the Universal Cloud REST API protocol.
 
 # Pre-Requisites
 
@@ -13,7 +13,7 @@ IBM Cloud account(s) with privileges to:
 1. User account to create and configure Network Insights
 2. User or service account for accessing the Findings API
 
-IBM Cloud Security Advisor Network Insights:
+IBM Cloud Security and Command Center Network Insights:
     Follow the guide to setup at least one Virtual Private Cloud (VPC) network interface flow logs to detect any suspicious activity by using learned patterns and threat intelligence. See [Enabling Network Insights](https://cloud.ibm.com/docs/security-advisor?topic=security-advisor-setup-network)
 
 
