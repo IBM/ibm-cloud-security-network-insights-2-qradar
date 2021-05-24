@@ -3,7 +3,7 @@
 
 ## Scope
 
-The purpose of this project is to provide a mechanism for ingesting IBM Cloud Security and Command Center Network Insights into QRadar using the Universal Cloud REST API protocol.
+The purpose of this project is to provide a mechanism for ingesting IBM Cloud Security and Compliance Network Insights into QRadar using the Universal Cloud REST API protocol.
 
 # Pre-Requisites
 
